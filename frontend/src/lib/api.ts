@@ -111,6 +111,43 @@ export const api = {
   getOrderById: (id: string) =>
     fetch(`${API_BASE}/orders/${id}`, { headers: getAuthHeaders() }).then(handleResponse),
 
+  updateOrderStatus: (id: string, status: string, note?: string) =>
+    fetch(`${API_BASE}/orders/${id}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+      body: JSON.stringify({ status, note }),
+    }).then(handleResponse),
+
+  // Deliveries
+  getMyDeliveries: () =>
+    fetch(`${API_BASE}/deliveries`, { headers: getAuthHeaders() }).then(handleResponse),
+
+  getDeliveryById: (id: string) =>
+    fetch(`${API_BASE}/deliveries/${id}`, { headers: getAuthHeaders() }).then(handleResponse),
+
+  updateDeliveryStatus: (id: string, status: string) =>
+    fetch(`${API_BASE}/deliveries/${id}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+      body: JSON.stringify({ status }),
+    }).then(handleResponse),
+
+  // Notifications
+  getNotifications: () =>
+    fetch(`${API_BASE}/notifications`, { headers: getAuthHeaders() }).then(handleResponse),
+
+  markNotificationRead: (id: string) =>
+    fetch(`${API_BASE}/notifications/${id}/read`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+    }).then(handleResponse),
+
+  markAllNotificationsRead: () =>
+    fetch(`${API_BASE}/notifications/read-all`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+    }).then(handleResponse),
+
   // Addresses
   getAddresses: () =>
     fetch(`${API_BASE}/addresses`, { headers: getAuthHeaders() }).then(handleResponse),

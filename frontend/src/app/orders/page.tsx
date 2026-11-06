@@ -3,7 +3,9 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { OrderTimeline } from '@/components/OrderTimeline';
+import { StatusBadge } from '@/components/StatusBadge';
 import { api, formatPrice } from '@/lib/api';
 
 export default function OrdersPage() {
@@ -11,6 +13,8 @@ export default function OrdersPage() {
   React.useEffect(() => { setIsClient(true); }, []);
 
   const [showDetails, setShowDetails] = useState<string | null>(null);
+
+  const router = useRouter();
 
   const { data: orders, isLoading } = useQuery({
     queryKey: ['orders'],
@@ -40,7 +44,7 @@ export default function OrdersPage() {
       <div className="space-y-4">
         {orders.map((order: any) => (
           <div key={order.id} className="card">
-            <div className="p-4 flex justify-between items-center">
+            <div onClick={() => setShowDetails(showDetails === order.id ? null : order.id)} className="p-4 flex justify-between items-center cursor-pointer">
               <div>
                 <h3 className="font-bold">طلب #{order.id.slice(0, 8)}...</h3>
                 <p className="text-sm text-gray-500">
@@ -48,29 +52,16 @@ export default function OrdersPage() {
                 </p>
               </div>
               <div className="text-left">
-                <span className={`px-2 py-1 text-xs rounded ${
-                  order.status === 'NEW' ? 'bg-yellow-100 text-yellow-800' :
-                  order.status === 'DELIVERED' ? 'bg-green-100 text-green-800' :
-                  order.status === 'DELIVERY_FAILED' ? 'bg-red-100 text-red-800' :
-                  'bg-blue-100 text-blue-800'
-                }`}>
-                  {order.status}
-                </span>
+                <StatusBadge status={order.status} />
                 <p className="text-sm font-bold mt-1">{formatPrice(order.total)}</p>
               </div>
             </div>
-
-            <button
-              onClick={() => setShowDetails(showDetails === order.id ? null : order.id)}
-              className="w-full text-center py-2 border-t"
-            >
-              {showDetails === order.id ? 'إخفاء التفاصيل' : 'عرض التفاصيل'}
-            </button>
 
             {showDetails === order.id && (
               <div className="px-4 pb-4 border-t">
                 <h4 className="font-medium mb-2">البيانات</h4>
                 <div className="text-sm space-y-1">
+                  <p>المتجر: {order.store?.name || 'غير معروف'}</p>
                   <p>عنوان التوصيل: {order.addressSnapshot?.area}، {order.addressSnapshot?.street}</p>
                   <p>طريقة الدفع: {order.paymentMethod}</p>
                   <p>عدد المنتجات: {order.items?.length || 0}</p>
@@ -79,6 +70,15 @@ export default function OrdersPage() {
                 {order.statusHistory && (
                   <OrderTimeline statusHistory={order.statusHistory} currentStatus={order.status} />
                 )}
+
+                <div className="mt-4">
+                  <button
+                    onClick={() => router.push(`/orders/${order.id}`)}
+                    className="btn btn-outline text-sm"
+                  >
+                    عرض التفاصيل الكاملة
+                  </button>
+                </div>
               </div>
             )}
           </div>
