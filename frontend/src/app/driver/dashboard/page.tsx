@@ -78,7 +78,7 @@ export default function DriverDashboardPage() {
               </div>
 
               <div className="flex flex-wrap gap-2">
-                {canPickup && (
+                {delivery.status === 'ASSIGNED' && (
                   <button
                     onClick={() => updateStatus.mutate({ id: delivery.id, status: 'PICKED_UP' })}
                     className="btn btn-primary text-sm"
@@ -86,21 +86,21 @@ export default function DriverDashboardPage() {
                     استلام الطلب
                   </button>
                 )}
-                {canDeliver && (
-                  <button
-                    onClick={() => updateStatus.mutate({ id: delivery.id, status: 'DELIVERED' })}
-                    className="btn btn-primary text-sm"
-                  >
-                    توصيل الطلب
-                  </button>
-                )}
-                {canFail && (
-                  <button
-                    onClick={() => updateStatus.mutate({ id: delivery.id, status: 'FAILED' })}
-                    className="btn bg-red-600 text-white hover:bg-red-700 text-sm"
-                  >
-                    فشل التوصيل
-                  </button>
+                {delivery.status === 'PICKED_UP' && (
+                  <>
+                    <button
+                      onClick={() => updateStatus.mutate({ id: delivery.id, status: 'DELIVERED' })}
+                      className="btn btn-primary text-sm"
+                    >
+                      توصيل الطلب
+                    </button>
+                    <button
+                      onClick={() => updateStatus.mutate({ id: delivery.id, status: 'FAILED' })}
+                      className="btn bg-red-600 text-white hover:bg-red-700 text-sm"
+                    >
+                      فشل التوصيل
+                    </button>
+                  </>
                 )}
               </div>
             </div>
