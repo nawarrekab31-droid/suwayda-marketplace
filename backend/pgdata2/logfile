@@ -1,0 +1,54 @@
+2026-11-06 17:20:18.976 +03 [5444] LOG:  starting PostgreSQL 18.4 on x86_64-windows, compiled by msvc-19.44.35227, 64-bit
+2026-11-06 17:20:18.980 +03 [5444] LOG:  listening on IPv6 address "::1", port 5433
+2026-11-06 17:20:18.980 +03 [5444] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-11-06 17:20:19.067 +03 [29140] LOG:  database system was shut down at 2026-11-06 17:19:33 +03
+2026-11-06 17:20:19.075 +03 [5444] LOG:  database system is ready to accept connections
+2026-11-06 17:20:35.897 +03 [23828] ERROR:  role "postgres" does not exist
+2026-11-06 17:20:35.897 +03 [23828] STATEMENT:  CREATE DATABASE suwayda_dev OWNER postgres;
+2026-11-06 17:21:10.649 +03 [8648] FATAL:  database "A" does not exist
+2026-11-06 17:22:00.210 +03 [24044] ERROR:  new encoding (UTF8) is incompatible with the encoding of the template database (WIN1256)
+2026-11-06 17:22:00.210 +03 [24044] HINT:  Use the same encoding as in the template database, or use template0 as template.
+2026-11-06 17:22:00.210 +03 [24044] STATEMENT:  CREATE DATABASE suwayda_dev OWNER postgres ENCODING 'UTF8';
+2026-11-06 17:22:53.917 +03 [30884] ERROR:  relation "public.users" does not exist at character 35
+2026-11-06 17:22:53.917 +03 [30884] STATEMENT:  SELECT "public"."users"."id" FROM "public"."users" WHERE ("public"."users"."phone" = $1 AND 1=1) OFFSET $2
+2026-11-06 17:22:53.945 +03 [30884] LOG:  could not receive data from client: An existing connection was forcibly closed by the remote host.
+	
+2026-11-06 17:25:19.059 +03 [28868] LOG:  checkpoint starting: time
+2026-11-06 17:27:24.827 +03 [28868] LOG:  checkpoint complete: wrote 1127 buffers (6.9%), wrote 3 SLRU buffers; 1 WAL file(s) added, 0 removed, 0 recycled; write=125.159 s, sync=0.446 s, total=125.770 s; sync files=411, longest=0.007 s, average=0.002 s; distance=5721 kB, estimate=5721 kB; lsn=0/1D87B38, redo lsn=0/1D87AA8
+2026-11-06 17:39:16.429 +03 [26284] ERROR:  duplicate key value violates unique constraint "users_phone_key"
+2026-11-06 17:39:16.429 +03 [26284] DETAIL:  Key (phone)=(+963998955796) already exists.
+2026-11-06 17:39:16.429 +03 [26284] STATEMENT:  INSERT INTO "public"."users" ("id","phone","password_hash","name","role","is_active","created_at","updated_at") VALUES ($1,$2,$3,$4,CAST($5::text AS "public"."Role"),$6,$7,$8) RETURNING "public"."users"."id", "public"."users"."email", "public"."users"."phone", "public"."users"."password_hash", "public"."users"."name", "public"."users"."role"::text, "public"."users"."is_active", "public"."users"."created_at", "public"."users"."updated_at"
+2026-11-06 17:40:19.100 +03 [28868] LOG:  checkpoint starting: time
+2026-11-06 17:40:20.206 +03 [28868] LOG:  checkpoint complete: wrote 9 buffers (0.1%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=1.043 s, sync=0.044 s, total=1.107 s; sync files=10, longest=0.036 s, average=0.005 s; distance=10 kB, estimate=5150 kB; lsn=0/1D8A450, redo lsn=0/1D8A3F8
+2026-11-06 18:59:09.950 +03 [5444] LOG:  could not reserve shared memory region (addr=000001DD03B10000) for child 0000000000001C20: error code 487
+2026-11-06 19:42:29.019 +03 [6136] LOG:  could not receive data from client: An existing connection was forcibly closed by the remote host.
+	
+2026-11-06 20:01:16.016 +03 [25572] ERROR:  duplicate key value violates unique constraint "users_email_key"
+2026-11-06 20:01:16.016 +03 [25572] DETAIL:  Key (email)=(test@merchant.com) already exists.
+2026-11-06 20:01:16.016 +03 [25572] STATEMENT:  INSERT INTO "public"."users" ("id","email","phone","password_hash","name","role","is_active","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,CAST($6::text AS "public"."Role"),$7,$8,$9) RETURNING "public"."users"."id", "public"."users"."email", "public"."users"."phone", "public"."users"."password_hash", "public"."users"."name", "public"."users"."role"::text, "public"."users"."is_active", "public"."users"."created_at", "public"."users"."updated_at"
+2026-11-06 20:01:16.914 +03 [25572] ERROR:  duplicate key value violates unique constraint "users_phone_key"
+2026-11-06 20:01:16.914 +03 [25572] DETAIL:  Key (phone)=(+963998476308) already exists.
+2026-11-06 20:01:16.914 +03 [25572] STATEMENT:  INSERT INTO "public"."users" ("id","phone","password_hash","name","role","is_active","created_at","updated_at") VALUES ($1,$2,$3,$4,CAST($5::text AS "public"."Role"),$6,$7,$8) RETURNING "public"."users"."id", "public"."users"."email", "public"."users"."phone", "public"."users"."password_hash", "public"."users"."name", "public"."users"."role"::text, "public"."users"."is_active", "public"."users"."created_at", "public"."users"."updated_at"
+2026-11-06 20:03:24.572 +03 [15912] ERROR:  duplicate key value violates unique constraint "users_email_key"
+2026-11-06 20:03:24.572 +03 [15912] DETAIL:  Key (email)=(test@merchant.com) already exists.
+2026-11-06 20:03:24.572 +03 [15912] STATEMENT:  INSERT INTO "public"."users" ("id","email","phone","password_hash","name","role","is_active","created_at","updated_at") VALUES ($1,$2,$3,$4,$5,CAST($6::text AS "public"."Role"),$7,$8,$9) RETURNING "public"."users"."id", "public"."users"."email", "public"."users"."phone", "public"."users"."password_hash", "public"."users"."name", "public"."users"."role"::text, "public"."users"."is_active", "public"."users"."created_at", "public"."users"."updated_at"
+2026-11-06 20:03:24.902 +03 [15912] ERROR:  duplicate key value violates unique constraint "users_phone_key"
+2026-11-06 20:03:24.902 +03 [15912] DETAIL:  Key (phone)=(+963998604663) already exists.
+2026-11-06 20:03:24.902 +03 [15912] STATEMENT:  INSERT INTO "public"."users" ("id","phone","password_hash","name","role","is_active","created_at","updated_at") VALUES ($1,$2,$3,$4,CAST($5::text AS "public"."Role"),$6,$7,$8) RETURNING "public"."users"."id", "public"."users"."email", "public"."users"."phone", "public"."users"."password_hash", "public"."users"."name", "public"."users"."role"::text, "public"."users"."is_active", "public"."users"."created_at", "public"."users"."updated_at"
+2026-11-06 20:05:19.492 +03 [28868] LOG:  checkpoint starting: time
+2026-11-06 20:05:23.150 +03 [28868] LOG:  checkpoint complete: wrote 33 buffers (0.2%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=3.608 s, sync=0.019 s, total=3.659 s; sync files=28, longest=0.003 s, average=0.001 s; distance=131 kB, estimate=4648 kB; lsn=0/1DAB418, redo lsn=0/1DAB3C0
+2026-11-06 20:06:50.476 +03 [26772] ERROR:  duplicate key value violates unique constraint "users_phone_key"
+2026-11-06 20:06:50.476 +03 [26772] DETAIL:  Key (phone)=(+963998810024) already exists.
+2026-11-06 20:06:50.476 +03 [26772] STATEMENT:  INSERT INTO "public"."users" ("id","phone","password_hash","name","role","is_active","created_at","updated_at") VALUES ($1,$2,$3,$4,CAST($5::text AS "public"."Role"),$6,$7,$8) RETURNING "public"."users"."id", "public"."users"."email", "public"."users"."phone", "public"."users"."password_hash", "public"."users"."name", "public"."users"."role"::text, "public"."users"."is_active", "public"."users"."created_at", "public"."users"."updated_at"
+2026-11-06 20:07:03.390 +03 [2808] ERROR:  duplicate key value violates unique constraint "users_phone_key"
+2026-11-06 20:07:03.390 +03 [2808] DETAIL:  Key (phone)=(+963998823122) already exists.
+2026-11-06 20:07:03.390 +03 [2808] STATEMENT:  INSERT INTO "public"."users" ("id","phone","password_hash","name","role","is_active","created_at","updated_at") VALUES ($1,$2,$3,$4,CAST($5::text AS "public"."Role"),$6,$7,$8) RETURNING "public"."users"."id", "public"."users"."email", "public"."users"."phone", "public"."users"."password_hash", "public"."users"."name", "public"."users"."role"::text, "public"."users"."is_active", "public"."users"."created_at", "public"."users"."updated_at"
+2026-11-06 20:07:46.624 +03 [27936] ERROR:  permission denied to create database
+2026-11-06 20:07:46.624 +03 [27936] STATEMENT:  CREATE DATABASE "prisma_migrate_shadow_db_d275832d-c3aa-4fe9-95f3-e81bfee4002a"
+2026-11-06 20:08:28.795 +03 [27112] ERROR:  permission denied to create database
+2026-11-06 20:08:28.795 +03 [27112] STATEMENT:  CREATE DATABASE "prisma_migrate_shadow_db_ac397216-fd69-4833-875f-7438ab563d34"
+2026-11-06 20:09:58.930 +03 [2592] ERROR:  duplicate key value violates unique constraint "users_phone_key"
+2026-11-06 20:09:58.930 +03 [2592] DETAIL:  Key (phone)=(+963998998716) already exists.
+2026-11-06 20:09:58.930 +03 [2592] STATEMENT:  INSERT INTO "public"."users" ("id","phone","password_hash","name","role","is_active","created_at","updated_at") VALUES ($1,$2,$3,$4,CAST($5::text AS "public"."Role"),$6,$7,$8) RETURNING "public"."users"."id", "public"."users"."email", "public"."users"."phone", "public"."users"."password_hash", "public"."users"."name", "public"."users"."role"::text, "public"."users"."is_active", "public"."users"."created_at", "public"."users"."updated_at"
+2026-11-06 20:10:19.183 +03 [28868] LOG:  checkpoint starting: time
+2026-11-06 20:10:27.625 +03 [28868] LOG:  checkpoint complete: wrote 76 buffers (0.5%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=8.345 s, sync=0.056 s, total=8.443 s; sync files=54, longest=0.008 s, average=0.002 s; distance=403 kB, estimate=4224 kB; lsn=0/1E10388, redo lsn=0/1E102F8

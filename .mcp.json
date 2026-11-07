@@ -1,0 +1,28 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "cmd.exe",
+      "args": ["/c", "npx", "-y", "@playwright/mcp@latest"],
+      "env": {}
+    },
+    "postgres": {
+      "command": "cmd.exe",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-postgres@latest",
+        "${DATABASE_URL}"
+      ],
+      "env": {
+        "DATABASE_URL": "postgresql://postgres:postgres@localhost:5432/suwayda_dev?schema=public"
+      },
+      "comment": "DISABLED until Phase 1 creates the database. Enable after Prisma migration runs."
+    },
+    "context7": {
+      "command": "cmd.exe",
+      "args": ["/c", "npx", "-y", "ctx7@latest"],
+      "env": {}
+    }
+  }
+}

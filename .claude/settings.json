@@ -1,0 +1,51 @@
+{
+  "permissions": {
+    "allow": [
+      "npm",
+      "npx",
+      "pnpm",
+      "npm install",
+      "npm run",
+      "npm test",
+      "npm build",
+      "npm lint",
+      "prisma",
+      "prisma migrate dev",
+      "prisma generate",
+      "prisma studio",
+      "docker compose",
+      "docker compose up",
+      "docker compose down",
+      "docker compose ps",
+      "docker compose logs",
+      "git status",
+      "git diff",
+      "git add",
+      "git commit",
+      "git log",
+      "git checkout",
+      "git branch",
+      "file read",
+      "file edit",
+      "file write",
+      "Playwright",
+      "Context7"
+    ],
+    "deny": [
+      "git push",
+      "git reset --hard",
+      "rm -rf",
+      "delete",
+      "rmdir",
+      ".env",
+      ".env.*",
+      "sudo",
+      "system install",
+      "curl",
+      "wget",
+      "ssh",
+      "remote database",
+      "production"
+    ]
+  }
+}

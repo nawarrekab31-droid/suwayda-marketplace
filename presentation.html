@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عرض تقديمي - سوق السويداء</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/reveal.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/theme/white.min.css">
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+        .slide { max-width: 1000px; margin: 40px auto; padding: 40px; }
+        h1, h2, h3 { color: #1e40af; }
+        .metric-box { display: inline-block; background: #eff6ff; border: 2px solid #93c5fd; border-radius: 12px; padding: 20px; margin: 10px; text-align: center; }
+        .metric-value { font-size: 2.5em; font-weight: bold; color: #2563eb; }
+        .metric-label { font-size: 0.9em; color: #64748b; margin-top: 5px; }
+        .status-badge { display: inline-block; padding: 8px 16px; border-radius: 20px; font-size: 0.85em; font-weight: bold; }
+        .status-complete { background: #dcfce7; color: #166534; }
+        .status-in-progress { background: #fef3c7; color: #92400e; }
+        .card { background: #f8fafc; border-radius: 12px; padding: 20px; border-left: 4px solid #3b82f6; margin: 15px 0; }
+        .tech-badge { display: inline-block; background: #eff6ff; color: #1e40af; padding: 4px 12px; border-radius: 8px; font-size: 0.85em; margin: 3px; }
+        .quote { background: #eff6ff; border-radius: 12px; padding: 20px 30px; border-right: 5px solid #2563eb; font-style: italic; }
+        .pricing-card { background: linear-gradient(135deg, #667eea 0%, #1e40af 100%); color: white; border-radius: 16px; padding: 30px; margin: 20px 0; }
+        .price { font-size: 2em; font-weight: bold; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <!-- Slide 1 -->
+            <section>
+                <h1>سوق السويداء</h1>
+                <p class="text-xl">منصة تجارة إلكترونية متعددة المتاجر<br>لولاية السويداء - سوريا</p>
+                <div class="quote">
+                    "بناء مستقبل تجارة محلية موثوقة، خطوة بخطوة"
+                </div>
+                <div class="metric-box">
+                    <div class="metric-value">4</div>
+                    <div class="metric-label">مراحل مُنفَّذة</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-value">100%</div>
+                    <div class="metric-label">نظام RTL كامل</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-value">4</div>
+                    <div class="metric-label">أدوار مديروية</div>
+                </div>
+            </section>
+
+            <!-- Slide 2 -->
+            <section>
+                <h2>نظرة عامة على المشروع</h2>
+                <h3>الهدف</h3>
+                <p>إنشاء منصة تجارة إلكترونية تربط المتاجر المحلية بالعملاء من خلال شبكة توصيل متكاملة.</p>
+
+                <h3>الوظائف الثلاثة الرئيسية</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="card">
+                        <h4>🛍️ بيئة التجارة</h4>
+                        <p>بحث ذكي، فلاتر متقدمة، عرض منتجات مع صور WebP مُضغوطة.</p>
+                    </div>
+                    <div class="card">
+                        <h4>🚚 نظام التوصيل</h4>
+                        <p>تتبع الوضع في الوقت الفعلي مع تنبيهات فورية للجميع.</p>
+                    </div>
+                    <div class="card">
+                        <h4>⭐ تقييم الموثوقية</h4>
+                        <p>نظام تقييم للمتاجر والسائقين بعد التوصيل الناجح.</p>
+                    </div>
+                    <div class="card">
+                        <h4>💰 العملة المحلية</h4>
+                        <p>دعم الليرة السورية (SYP) بتنسيق عربي كامل.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 3 -->
+            <section>
+                <h2>التقنية المستخدمة</h2>
+                <h3>الواجهة الأمامية</h3>
+                <div style="margin: 15px 0;">
+                    <span class="tech-badge">Next.js 14</span>
+                    <span class="tech-badge">App Router</span>
+                    <span class="tech-badge">TypeScript</span>
+                    <span class="tech-badge">Tailwind CSS</span>
+                    <span class="tech-badge">React Query v5</span>
+                    <span class="tech-badge">RTL مدعوم كامل</span>
+                </div>
+
+                <h3>الواجهة الخلفية</h3>
+                <div style="margin: 15px 0;">
+                    <span class="tech-badge">Node.js + TypeScript</span>
+                    <span class="tech-badge">Express.js</span>
+                    <span class="tech-badge">PostgreSQL</span>
+                    <span class="tech-badge">Prisma ORM</span>
+                    <span class="tech-badge">JWT Authentication</span>
+                    <span class="tech-badge">RBAC كامل</span>
+                </div>
+            </section>
+
+            <!-- Slide 4 -->
+            <section>
+                <h2>تقدم المشروع حتى الآن</h2>
+                <div class="timeline">
+                    <h4 class="status-badge status-complete">Phase 1: الأساس ✅</h4>
+                    <p>Monorepo، Docker، Prisma Schema، Seed Database، Auth + RBAC</p>
+                </div>
+                <div class="timeline">
+                    <h4 class="status-badge status-complete">Phase 2: لوحة المتجر ✅</h4>
+                    <p>Product Management، Images Upload (WebP)، Offers، Store Profile</p>
+                </div>
+                <div class="timeline">
+                    <h4 class="status-badge status-complete">Phase 3: العميل ✅</h4>
+                    <p>Home، Search، Product Page، Cart、Invoice、Checkout、Addresses</p>
+                </div>
+                <div class="timeline">
+                    <h4 class="status-badge status-complete">Phase 4: الطلبات والتوصيل ✅</h4>
+                    <p>State Machine، Merchant/Driver/Admin Dashboard، Notifications</p>
+                </div>
+
+                <div class="quote">
+                    جميع المراحل 1-4 مُنفَّذة بنجاح مع اختبارات كاملة (10 اختبارات نجحت).
+                </div>
+            </section>
+
+            <!-- Slide 5 -->
+            <section>
+                <h2>نموذج حالة الطلب (State Machine)</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="card">
+                        <h3>التدفق الأساسي</h3>
+                        <p>NEW → ACCEPTED → PREPARING → READY → DRIVER → ON_THE_WAY → DELIVERED</p>
+                        <h3>حالات الجانب</h3>
+                        <p>REJECTED_BY_MERCHANT</p>
+                        <p>CANCELLED_BY_CUSTOMER (قبل التجهيز)</p>
+                        <p>DELIVERY_FAILED</p>
+                    </div>
+                    <div class="card">
+                        <h3>التحقق من الصلاحية</h3>
+                        <p>✓ كل انتقال يُوثَّق في order_status_history</p>
+                        <p>✓ middleware requireRole يحمي كل نقطة</p>
+                        <p>✓ منع التغييرات غير المصرح بها</p>
+                        <p>✓ تنبيهات تلقائية للجميع</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 6 -->
+            <section>
+                <h2>أدوار المستخدمين والصلاحيات</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="card">
+                        <h3>ADMIN</h3>
+                        <p>• لا يمكن التسجيل عبر النظام</p>
+                        <p>• يُنشأ عبر أمر seed CLI فقط</p>
+                        <p>• إدارة جميع المتاجر والمستخدمين</p>
+                        <p>• تفعيل/إلغاء المتاجر</p>
+                        <p>• توثيق جميع العمليات (Audit Log)</p>
+                    </div>
+                    <div class="card">
+                        <h3>MERCHANT</h3>
+                        <p>• التسجيل يتطلب موافقة ADMIN</p>
+                        <p>• يرى فقط متجره الخاص</p>
+                        <p>• إدارة منتجاته وعروضه</p>
+                        <p>• معالجة طلبات المتجر فقط</p>
+                    </div>
+                    <div class="card">
+                        <h3>CUSTOMER</h3>
+                        <p>• تصفح عام للمتاجر</p>
+                        <p>• إنشاء سلة وطلبات</p>
+                        <p>• تتبع الطلبات في الوقت الفعلي</p>
+                        <p>• تقييم المتاجر بعد التوصيل</p>
+                    </div>
+                    <div class="card">
+                        <h3>DRIVER</h3>
+                        <p>• لوحة بسيطة للتوصيلات المُخصصة</p>
+                        <p>• تحديث حالة التوصيل</p>
+                        <p>• مناقشة مشاكل التوصيل</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 7 -->
+            <section>
+                <h2>بنية قاعدة البيانات</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="card">
+                        <h4>users, stores, products, categories</h4>
+                        <p>البيانات الأساسية مع فلاتر بحث فعّالة</p>
+                    </div>
+                    <div class="card">
+                        <h4>orders, order_items, status_history</h4>
+                        <p>تتبع كامل للطلب مع توثيق البيانات</p>
+                    </div>
+                    <div class="card">
+                        <h4>deliveries, drivers</h4>
+                        <p>ربط السائق بالطلب مع أوقات التوصيل</p>
+                    </div>
+                    <div class="card">
+                        <h4>notifications, reviews</h4>
+                        <p>نظام الإشعانات وتقييم المتاجر</p>
+                    </div>
+                </div>
+
+                <h3 class="mt-6">القواعد المهمة</h3>
+                <ul class="list-right">
+                    <li>السعر والبيانات تُقتبس في order_items (تثبيت الفاتورة)</li>
+                    <li>الحذف الناعم (soft delete) على المتاجر والمنتجات</li>
+                    <li>رقم الهاتف فريد كهوية ممثلة</li>
+                    <li>العمولة: ليرة سورية (SYP)</li>
+                </ul>
+            </section>
+
+            <!-- Slide 8 -->
+            <section>
+                <h2>القيمة المضافة للعميل</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="card">
+                        <h3>💼 للمنصة</h3>
+                        <p>• حل شامل بدون تعقيد التطبيقات الجانبية</p>
+                        <p>• بنية موثوقة تُقاسم المتاجر المحلية</p>
+                        <p>• نظام توصيل مخصص للمنطقة</p>
+                        <p>• تحكم كامل بالبيانات (لا يتم إرسالها إلى الخارج)</p>
+                    </div>
+                    <div class="card">
+                        <h3>👥 للعميل نهاية السلسلة</h3>
+                        <p>• تجربة عربية متكاملة وسهلة</p>
+                        <p>• توثيق كامل للطلبات والفواتير</p>
+                        <p>• موثوقية عالية بفضل تقييم المتاجر</p>
+                        <p>• دعم محلي يفهم احتياجات السويداء</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 9 -->
+            <section>
+                <h2>العرض الاقتصادي</h2>
+
+                <div class="pricing-card">
+                    <h3>التطوير المكتمل (Phase 1-4)</h3>
+                    <div class="price">٤٬٥٠٠$<br><span>تقريباً</span></div>
+                    <p>بما في ذلك: جميع المواصفات، اختبار، وثائق، ودعم أول 3 أشهر</p>
+                </div>
+
+                <div class="pricing-card">
+                    <h3>النشر الاحترافي</h3>
+                    <div class="price">٤٠٠$<br><span>تقريباً</span></div>
+                    <p>إعداد الخادم، إعداد HTTPS، نشر إنتاجي</p>
+                </div>
+
+                <div class="pricing-card">
+                    <h3>الصيانة الشهرية</h3>
+                    <div class="price">٢٠٠$/شهر</div>
+                    <p>تحديثات أمان، صيانة، دعم فني</p>
+                </div>
+
+                <div class="quote">
+                    <strong>التكلفة الإجمالية المقترحة:</strong><br>
+                    <span style="font-size: 1.8em;">٥٬٠٠٠$ - ٦٫٣٠٠$</span>
+                </div>
+            </section>
+
+            <!-- Slide 10 -->
+            <section>
+                <h2>الخطوات التالية</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="card">
+                        <h3>🚀 مرحلة التنفيذ</h3>
+                        <p>1. مراجعة النتائج الحالية مع العميل</p>
+                        <p>2. إختيار ميزات إضافية حسب الميزانية</p>
+                        <p>3. جدولة زمنية للإطلاق النهائي</p>
+                        <p>4. بدء مرحلة الصيانة والدعم</p>
+                    </div>
+                    <div class="card">
+                        <h3>🔍 ميزات إضافية مقترحة</h3>
+                        <p>• دعم Web Push Notifications</p>
+                        <p>• تطبيق PWA كامل</p>
+                        <p>• تحليلات وإحصاءات متقدمة</p>
+                        <p>• دمج خدمات دفع سورية (شام كاش، سيريتل كاش)</p>
+                    </div>
+                </div>
+
+                <h3 class="mt-6">للتواصل والمفاوضات</h3>
+                <p><strong>البريد الإلكتروني:</strong> seif@suwayda.ma</p>
+                <p><strong>الهاتف:</strong> +٩٦٥٠٠٠٠٬٠٠٠٬٠٠٠</p>
+                <p><strong>الموقع:</strong> suwayda-marketplace</p>
+            </section>
+
+            <!-- Slide 11 -->
+            <section>
+                <h1>شكراً لاهتمامكم</h1>
+                <div class="quote">
+                    "سوق السويداء - منصة تجارة إلكترونية متكاملة<br>
+                    جاهزة للاستخدام الفوري مع إمكانية التوسع"
+                </div>
+                <p style="margin-top: 30px; text-align: center; color: #64748b;">
+                    ملف الدراسة النفسي: <strong>STUDY_REPORT.md</strong>
+                </p>
+                <p style="text-align: center; color: #64748b;">تم إعداده بواسطة فريق تطوير Suwayda Marketplace</p>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        Reveal.initialize({
+            slideNumber: true,
+            progress: true,
+            hash: true,
+            center: false,
+            theme: 'white',
+            transition: 'slide'
+        });
+    </script>
+</body>
+</html>
