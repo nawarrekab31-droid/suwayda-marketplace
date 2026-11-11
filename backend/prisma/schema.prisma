@@ -159,6 +159,7 @@ model Offer {
   startsAt      DateTime     @map("starts_at")
   endsAt        DateTime     @map("ends_at")
   isActive      Boolean      @default(true) @map("is_active")
+  createdAt     DateTime     @default(now()) @map("created_at")
 
   store         Store        @relation(fields: [storeId], references: [id])
   product       Product?     @relation(fields: [productId], references: [id])
@@ -175,6 +176,7 @@ model Address {
   notes     String?
   lat       Float?
   lng       Float?
+  createdAt DateTime @default(now()) @map("created_at")
 
   user      User     @relation(fields: [userId], references: [id])
   orders    Order[]

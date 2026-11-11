@@ -2,6 +2,16 @@ import { Request, Response, NextFunction } from 'express';
 import { prisma } from '../../prisma/client';
 import { successResponse } from '../../common/utils/response';
 import { AppError } from '../../common/middleware/errorHandler';
+import { DeliveryStatus, OrderStatus, Prisma } from '@prisma/client';
+import { transitionOrderStatus } from '../../common/utils/orderStateMachine';
+import { assignDriverSchema, deliveryStatusUpdateSchema } from './deliveries.dto';
+
+const VALID_DELIVERY_TRANSITIONS: Record<DeliveryStatus, DeliveryStatus[]> = {
+  ASSIGNED: ['PICKED_UP'],
+  PICKED_UP: ['DELIVERED', 'FAILED'],
+  DELIVERED: [],
+  FAILED: [],
+};
 
 export const getMyDeliveries = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -23,7 +33,6 @@ export const getMyDeliveries = async (req: Request, res: Response, next: NextFun
             include: {
               customer: { select: { name: true, phone: true } },
               store: { select: { name: true, address: true, phone: true } },
-              addressSnapshot: true,
             },
           },
         },
@@ -45,7 +54,7 @@ export const updateDeliveryStatus = async (req: Request, res: Response, next: Ne
     const user = (req as any).user;
     if (user.role !== 'DRIVER') throw new AppError('FORBIDDEN', 'للسائقين فقط', 403);
 
-    const { status, failReason } = req.body;
+    const { status, failReason } = deliveryStatusUpdateSchema.parse(req.body);
     const deliveryId = req.params.id;
 
     const driver = await prisma.driver.findUnique({ where: { userId: user.userId } });
@@ -55,25 +64,18 @@ export const updateDeliveryStatus = async (req: Request, res: Response, next: Ne
     if (!delivery) throw new AppError('NOT_FOUND', 'التوصيل غير موجود', 404);
     if (delivery.driverId !== driver.id) throw new AppError('FORBIDDEN', 'ليس لك صلاحية', 403);
 
-    const VALID_DELIVERY_TRANSITIONS: Record<string, string[]> = {
-      ASSIGNED: ['PICKED_UP'],
-      PICKED_UP: ['DELIVERED', 'FAILED'],
-      DELIVERED: [],
-      FAILED: [],
-    };
-
     const allowedNext = VALID_DELIVERY_TRANSITIONS[delivery.status] || [];
     if (!allowedNext.includes(status)) {
       throw new AppError(
         'INVALID_TRANSITION',
         `لا يمكن تغيير الحالة من ${delivery.status} إلى ${status}`,
-        400
+        409
       );
     }
 
     const now = new Date();
     const updated = await prisma.$transaction(async (tx) => {
-      const data: any = { status };
+      const data: Prisma.DeliveryUpdateInput = { status };
 
       if (status === 'PICKED_UP') {
         data.pickedAt = now;
@@ -89,26 +91,21 @@ export const updateDeliveryStatus = async (req: Request, res: Response, next: Ne
         data,
       });
 
-      let newOrderStatus: string | null = null;
+      let newOrderStatus: OrderStatus | null = null;
       if (status === 'PICKED_UP') newOrderStatus = 'ON_THE_WAY';
       else if (status === 'DELIVERED') newOrderStatus = 'DELIVERED';
       else if (status === 'FAILED') newOrderStatus = 'DELIVERY_FAILED';
 
       if (newOrderStatus) {
-        await tx.order.update({
-          where: { id: delivery.orderId },
-          data: { status: newOrderStatus as any },
-        });
-        await tx.orderStatusHistory.create({
-          data: {
-            orderId: delivery.orderId,
-            status: newOrderStatus as any,
-            changedBy: user.userId,
-            note: status === 'PICKED_UP' ? 'في طريق التوصيل'
-              : status === 'DELIVERED' ? 'تم التوصيل'
-              : 'فشل التوصيل',
-          },
-        });
+        await transitionOrderStatus(
+          tx,
+          delivery.orderId,
+          newOrderStatus,
+          user.userId,
+          status === 'PICKED_UP' ? 'في طريق التوصيل'
+            : status === 'DELIVERED' ? 'تم التوصيل'
+            : 'فشل التوصيل'
+        );
       }
 
       return updatedDelivery;
@@ -128,16 +125,35 @@ export const getDeliveryById = async (req: Request, res: Response, next: NextFun
         order: {
           include: {
             customer: { select: { name: true, phone: true } },
-            store: { select: { name: true, address: true, phone: true } },
-            addressSnapshot: true,
+            store: { select: { name: true, address: true, phone: true, ownerUserId: true } },
             items: true,
           },
         },
-        driver: true,
+        driver: { select: { id: true, userId: true, vehicle: true, isOnline: true, createdAt: true } },
       },
     });
     if (!delivery) throw new AppError('NOT_FOUND', 'التوصيل غير موجود', 404);
-    res.json(successResponse(delivery));
+    const user = (req as any).user;
+    const canAccess =
+      user.role === 'ADMIN' ||
+      (user.role === 'DRIVER' && delivery.driver.userId === user.userId) ||
+      (user.role === 'CUSTOMER' && delivery.order.customerId === user.userId) ||
+      (user.role === 'MERCHANT' && delivery.order.store?.ownerUserId === user.userId);
+    if (!canAccess) throw new AppError('FORBIDDEN', 'غير مصرح بالوصول لهذا التوصيل', 403);
+    const responseData = {
+      ...delivery,
+      order: {
+        ...delivery.order,
+        store: delivery.order.store
+          ? {
+            name: delivery.order.store.name,
+            address: delivery.order.store.address,
+            phone: delivery.order.store.phone,
+          }
+          : null,
+      },
+    };
+    res.json(successResponse(responseData));
   } catch (err) {
     next(err);
   }
@@ -148,37 +164,43 @@ export const assignDriver = async (req: Request, res: Response, next: NextFuncti
     const user = (req as any).user;
     if (user.role !== 'ADMIN') throw new AppError('FORBIDDEN', 'للوحة إدارة فقط', 403);
 
-    const { driverId, orderId } = req.body;
+    const { driverId, orderId } = assignDriverSchema.parse(req.body);
 
     const driver = await prisma.driver.findUnique({ where: { id: driverId } });
     if (!driver) throw new AppError('NOT_FOUND', 'الساق غير موجود', 404);
 
-    const order = await prisma.order.findUnique({ where: { id: orderId } });
-    if (!order) throw new AppError('NOT_FOUND', 'الطلب غير موجود', 404);
+    const delivery = await prisma.$transaction(async (tx) => {
+      const existing = await tx.delivery.findFirst({ where: { orderId } });
+      if (existing && existing.status !== 'FAILED') {
+        throw new AppError('CONFLICT', 'هذا الطلب تمت توزيعه بالفعل', 409);
+      }
 
-    const existing = await prisma.delivery.findFirst({ where: { orderId } });
-    if (existing) throw new AppError('CONFLICT', 'هذا الطلب تمت توزيعه بالفعل', 409);
+      const newDelivery = existing
+        ? await tx.delivery.update({
+          where: { id: existing.id },
+          data: {
+            driverId,
+            status: 'ASSIGNED',
+            assignedAt: new Date(),
+            pickedAt: null,
+            deliveredAt: null,
+            failedAt: null,
+            failReason: null,
+          },
+        })
+        : await tx.delivery.create({
+          data: { orderId, driverId, status: 'ASSIGNED' },
+        });
 
-    const delivery = await prisma.delivery.create({
-      data: {
+      await transitionOrderStatus(
+        tx,
         orderId,
-        driverId,
-        status: 'ASSIGNED',
-      },
-    });
+        'ASSIGNED_TO_DRIVER',
+        user.userId,
+        'تم تعيين سائق'
+      );
 
-    await prisma.order.update({
-      where: { id: orderId },
-      data: { status: 'ASSIGNED_TO_DRIVER' },
-    });
-
-    await prisma.orderStatusHistory.create({
-      data: {
-        orderId,
-        status: 'ASSIGNED_TO_DRIVER',
-        changedBy: user.userId,
-        note: 'تم تعيين سائق',
-      },
+      return newDelivery;
     });
 
     res.status(201).json(successResponse(delivery));

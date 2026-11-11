@@ -2,19 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { prisma } from '../../prisma/client';
 import { successResponse } from '../../common/utils/response';
 import { AppError } from '../../common/middleware/errorHandler';
-
-const VALID_TRANSITIONS: Record<string, string[]> = {
-  NEW: ['ACCEPTED_BY_MERCHANT', 'REJECTED_BY_MERCHANT', 'CANCELLED_BY_CUSTOMER'],
-  ACCEPTED_BY_MERCHANT: ['PREPARING', 'REJECTED_BY_MERCHANT', 'CANCELLED_BY_CUSTOMER'],
-  PREPARING: ['READY_FOR_PICKUP', 'REJECTED_BY_MERCHANT'],
-  READY_FOR_PICKUP: ['ASSIGNED_TO_DRIVER', 'REJECTED_BY_MERCHANT'],
-  ASSIGNED_TO_DRIVER: ['ON_THE_WAY', 'DELIVERY_FAILED'],
-  ON_THE_WAY: ['DELIVERED', 'DELIVERY_FAILED'],
-  DELIVERED: [],
-  REJECTED_BY_MERCHANT: [],
-  CANCELLED_BY_CUSTOMER: [],
-  DELIVERY_FAILED: ['ASSIGNED_TO_DRIVER'],
-};
+import { transitionOrderStatus } from '../../common/utils/orderStateMachine';
+import { orderStatusUpdateSchema } from './orders.dto';
 
 export const getOrders = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -25,7 +14,12 @@ export const getOrders = async (req: Request, res: Response, next: NextFunction)
     if (user.role === 'CUSTOMER') {
       where.customerId = user.userId;
     } else if (user.role === 'MERCHANT') {
-      where.storeId = storeId || user.userId;
+      const store = await prisma.store.findFirst({
+        where: { ownerUserId: user.userId },
+        select: { id: true },
+      });
+      if (!store) throw new AppError('NOT_FOUND', 'لا يوجد متجر مرتبط بحسابك', 404);
+      where.storeId = store.id;
     } else if (storeId) {
       where.storeId = storeId;
     }
@@ -201,44 +195,39 @@ export const createOrder = async (req: Request, res: Response, next: NextFunctio
 export const updateOrderStatus = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = (req as any).user;
-    const { status, note } = req.body;
+    const { status, note } = orderStatusUpdateSchema.parse(req.body);
     const orderId = req.params.id;
 
-    const order = await prisma.order.findUnique({ where: { id: orderId } });
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: {
+        store: { select: { ownerUserId: true } },
+        deliveries: { include: { driver: { select: { userId: true } } } },
+      },
+    });
     if (!order) throw new AppError('NOT_FOUND', 'الطلب غير موجود', 404);
 
-    const allowedNext = VALID_TRANSITIONS[order.status] || [];
-    if (!allowedNext.includes(status)) {
-      throw new AppError('INVALID_TRANSITION', `لا يمكن تغيير الحالة من ${order.status} إلى ${status}`, 400);
-    }
-
-    const canTransition =
-      user.role === 'ADMIN' ||
-      (user.role === 'MERCHANT' && order.storeId === user.userId) ||
-      (user.role === 'DRIVER' && order.deliveries?.some((d: any) => d.driverId === user.userId)) ||
-      (user.role === 'CUSTOMER' && order.customerId === user.userId && ['CANCELLED_BY_CUSTOMER'].includes(status));
+    const isMerchantTransition =
+      user.role === 'MERCHANT' &&
+      order.store?.ownerUserId === user.userId &&
+      ['ACCEPTED_BY_MERCHANT', 'PREPARING', 'READY_FOR_PICKUP', 'REJECTED_BY_MERCHANT'].includes(status);
+    const isDriverTransition =
+      user.role === 'DRIVER' &&
+      order.deliveries.some((delivery) => delivery.driver.userId === user.userId) &&
+      ['ON_THE_WAY', 'DELIVERED', 'DELIVERY_FAILED'].includes(status);
+    const isCustomerTransition =
+      user.role === 'CUSTOMER' &&
+      order.customerId === user.userId &&
+      status === 'CANCELLED_BY_CUSTOMER';
+    const canTransition = user.role === 'ADMIN' || isMerchantTransition || isDriverTransition || isCustomerTransition;
 
     if (!canTransition) {
       throw new AppError('FORBIDDEN', 'غير مصرح بتغيير حالة هذا الطلب', 403);
     }
 
-    const updatedOrder = await prisma.$transaction(async (tx) => {
-      const updated = await tx.order.update({
-        where: { id: orderId },
-        data: { status: status as any },
-      });
-
-      await tx.orderStatusHistory.create({
-        data: {
-          orderId,
-          status: status as any,
-          changedBy: user.userId,
-          note: note || `تم تغيير الحالة إلى ${status}`,
-        },
-      });
-
-      return updated;
-    });
+    const updatedOrder = await prisma.$transaction((tx) =>
+      transitionOrderStatus(tx, orderId, status, user.userId, note)
+    );
 
     res.json(successResponse(updatedOrder));
   } catch (err) {

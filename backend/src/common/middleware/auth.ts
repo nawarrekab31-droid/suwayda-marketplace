@@ -89,6 +89,7 @@ export async function requireOrderOwnership(
 
   const isCustomer = req.user.role === 'CUSTOMER' && order.customerId === req.user.userId;
   let isMerchant = false;
+  let isDriver = false;
   if (req.user.role === 'MERCHANT' && order.storeId) {
     const store = await prisma.store.findUnique({
       where: { id: order.storeId },
@@ -96,8 +97,15 @@ export async function requireOrderOwnership(
     });
     isMerchant = store?.ownerUserId === req.user.userId;
   }
+  if (req.user.role === 'DRIVER') {
+    const delivery = await prisma.delivery.findFirst({
+      where: { orderId, driver: { is: { userId: req.user.userId } } },
+      select: { id: true },
+    });
+    isDriver = delivery !== null;
+  }
 
-  if (!isCustomer && !isMerchant && req.user.role !== 'ADMIN') {
+  if (!isCustomer && !isMerchant && !isDriver && req.user.role !== 'ADMIN') {
     throw new AppError('FORBIDDEN', 'غير مصرح بالوصول لهذا الطلب', 403);
   }
 

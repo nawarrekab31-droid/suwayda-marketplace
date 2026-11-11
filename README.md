@@ -196,6 +196,13 @@ cd backend
 npm test -- --runInBand
 ```
 
+### النشر على Render
+- أنشئ Web Service من مجلد `backend` (Root Directory).
+- Build Command: `npm ci && npm run build`
+- Start Command: `npm start`
+- أضف `DATABASE_URL` ورموز JWT كمتغيرات بيئة في Render، ولا ترفع ملف `.env`.
+- انشر تغييرات قاعدة البيانات باستخدام `npm run prisma:migrate:deploy` بعد التأكد من حالة قاعدة البيانات. لا تستخدم `migrate dev` على قاعدة الإنتاج.
+
 ### 5. فحص الخدمات
 ```bash
 # تحقق من أن الخادم يعمل

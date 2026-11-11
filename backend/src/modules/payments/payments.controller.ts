@@ -28,13 +28,6 @@ export const createPayment = async (req: Request, res: Response, next: NextFunct
       },
     });
 
-    if (method === 'CASH_ON_DELIVERY') {
-      await prisma.order.update({
-        where: { id: orderId },
-        data: { status: 'DELIVERED' },
-      });
-    }
-
     res.status(201).json(successResponse(payment));
   } catch (err) {
     next(err);
