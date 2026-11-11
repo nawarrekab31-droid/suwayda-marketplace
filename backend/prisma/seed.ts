@@ -1,4 +1,4 @@
-import { PrismaClient, Role, StoreStatus, DiscountType, OrderStatus, PaymentMethod } from '@prisma/client';
+import { PrismaClient, Role, StoreStatus, DiscountType } from '@prisma/client';
 import argon2 from 'argon2';
 
 const prisma = new PrismaClient();
@@ -15,25 +15,58 @@ async function validateEnv() {
   }
 }
 
+async function getOrCreateCategory(name: string, icon: string, parentId: string | null = null) {
+  const existing = await prisma.category.findFirst({
+    where: { name, parentId },
+  });
+
+  if (existing) {
+    return prisma.category.update({
+      where: { id: existing.id },
+      data: { icon },
+    });
+  }
+
+  return prisma.category.create({
+    data: { name, icon, parentId },
+  });
+}
+
 async function main() {
   console.log('🌱 Starting database seed...');
   await validateEnv();
 
   // 1. Create Admin User
   const adminPasswordHash = await argon2.hash(process.env.ADMIN_PASSWORD!);
-  const admin = await prisma.user.upsert({
+  const existingAdmin = await prisma.user.findUnique({
     where: { phone: process.env.ADMIN_PHONE! },
-    update: {},
-    create: {
-      email: process.env.ADMIN_EMAIL!,
-      phone: process.env.ADMIN_PHONE!,
-      passwordHash: adminPasswordHash,
-      name: 'System Administrator',
-      role: Role.ADMIN,
-      isActive: true,
-    },
   });
-  console.log(`✅ Admin created: ${admin.name} (${admin.phone})`);
+
+  if (existingAdmin && existingAdmin.role !== Role.ADMIN) {
+    throw new Error('ADMIN_PHONE is already assigned to a non-admin user');
+  }
+
+  const admin = existingAdmin
+    ? await prisma.user.update({
+      where: { id: existingAdmin.id },
+      data: {
+        email: process.env.ADMIN_EMAIL!,
+        passwordHash: adminPasswordHash,
+        name: 'System Administrator',
+        isActive: true,
+      },
+    })
+    : await prisma.user.create({
+      data: {
+        email: process.env.ADMIN_EMAIL!,
+        phone: process.env.ADMIN_PHONE!,
+        passwordHash: adminPasswordHash,
+        name: 'System Administrator',
+        role: Role.ADMIN,
+        isActive: true,
+      },
+    });
+  console.log(`✅ Admin ready: ${admin.name}`);
 
   // 2. Create Categories (Tree structure)
   const categoriesData = [
@@ -62,27 +95,12 @@ async function main() {
   const createdCategories: Map<string, string> = new Map(); // name -> id
 
   for (const parentCat of categoriesData) {
-    const parent = await prisma.category.upsert({
-      where: { id: parentCat.name },
-      update: {},
-      create: {
-        name: parentCat.name,
-        icon: parentCat.icon,
-      },
-    });
+    const parent = await getOrCreateCategory(parentCat.name, parentCat.icon);
     createdCategories.set(parentCat.name, parent.id);
     console.log(`✅ Category: ${parent.name}`);
 
     for (const child of parentCat.children) {
-      const childCat = await prisma.category.upsert({
-        where: { id: child.name },
-        update: {},
-        create: {
-          name: child.name,
-          icon: child.icon,
-          parentId: parent.id,
-        },
-      });
+      const childCat = await getOrCreateCategory(child.name, child.icon, parent.id);
       createdCategories.set(child.name, childCat.id);
       console.log(`   └─ ${childCat.name}`);
     }
@@ -100,7 +118,7 @@ async function main() {
     return;
   }
 
-  const createdStores: Array<{ id: string; ownerId: string }> = [];
+  const createdStores: Array<{ id: string }> = [];
 
   for (const owner of storeOwners) {
     const ownerPasswordHash = await argon2.hash('StorePass123!');
@@ -117,24 +135,34 @@ async function main() {
       },
     });
 
-    const store = await prisma.store.upsert({
-      where: { id: owner.storeName },
-      update: {},
-      create: {
-        ownerUserId: merchant.id,
-        name: owner.storeName,
-        description: owner.description,
-        address: owner.address,
-        phone: owner.storePhone,
-        workingHours: {
-          open: '09:00',
-          close: '21:00',
-          days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
-        },
-        status: StoreStatus.ACTIVE,
-      },
+    const existingStore = await prisma.store.findFirst({
+      where: { ownerUserId: merchant.id, name: owner.storeName },
     });
-    createdStores.push({ id: store.id, ownerId: merchant.id });
+    const store = existingStore
+      ? await prisma.store.update({
+        where: { id: existingStore.id },
+        data: {
+          description: owner.description,
+          address: owner.address,
+          phone: owner.storePhone,
+        },
+      })
+      : await prisma.store.create({
+        data: {
+          ownerUserId: merchant.id,
+          name: owner.storeName,
+          description: owner.description,
+          address: owner.address,
+          phone: owner.storePhone,
+          workingHours: {
+            open: '09:00',
+            close: '21:00',
+            days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
+          },
+          status: StoreStatus.ACTIVE,
+        },
+      });
+    createdStores.push({ id: store.id });
     console.log(`✅ Store: ${store.name} (Owner: ${merchant.name})`);
   }
 
@@ -150,31 +178,36 @@ async function main() {
   for (const store of createdStores) {
     for (let i = 0; i < productTemplates.length; i++) {
       const template = productTemplates[i];
-      const categoryName = template.categoryNames[Math.floor(Math.random() * template.categoryNames.length)];
+      const categoryName = template.categoryNames[0];
       const categoryId = createdCategories.get(categoryName);
 
       if (!categoryId) {
-        console.warn(`⚠️ Category not found: ${categoryName}`);
-        continue;
+        throw new Error(`Seed category not found: ${categoryName}`);
       }
 
-      const product = await prisma.product.create({
-        data: {
-          storeId: store.id,
-          categoryId,
-          name: `${template.name} - ${store.id.slice(0, 8)}`,
-          description: template.description,
-          price: template.price + Math.floor(Math.random() * 5000),
-          stock: template.stock,
-          isAvailable: true,
-          images: {
-            create: [
-              { url: `https://picsum.photos/seed/${store.id}-${i}/400/400.webp`, sortOrder: 0 },
-              { url: `https://picsum.photos/seed/${store.id}-${i}-2/400/400.webp`, sortOrder: 1 },
-            ],
-          },
-        },
+      const productName = `${template.name} - ${store.id.slice(0, 8)}`;
+      const existingProduct = await prisma.product.findFirst({
+        where: { storeId: store.id, name: productName },
       });
+      const product = existingProduct
+        ? existingProduct
+        : await prisma.product.create({
+          data: {
+            storeId: store.id,
+            categoryId,
+            name: productName,
+            description: template.description,
+            price: template.price,
+            stock: template.stock,
+            isAvailable: true,
+            images: {
+              create: [
+                { url: `https://picsum.photos/seed/${store.id}-${i}/400/400.webp`, sortOrder: 0 },
+                { url: `https://picsum.photos/seed/${store.id}-${i}-2/400/400.webp`, sortOrder: 1 },
+              ],
+            },
+          },
+        });
       console.log(`   ✅ Product: ${product.name} (${product.price} ل.س) in ${categoryName}`);
     }
   }
@@ -186,18 +219,31 @@ async function main() {
   for (const store of createdStores) {
     const storeProducts = await prisma.product.findMany({ where: { storeId: store.id }, take: 2 });
     for (const product of storeProducts) {
-      await prisma.offer.create({
-        data: {
-          storeId: store.id,
-          productId: product.id,
-          title: `عرض خاص على ${product.name}`,
-          discountType: DiscountType.PERCENT,
-          discountValue: 15,
-          startsAt: now,
-          endsAt: nextWeek,
-          isActive: true,
-        },
+      const offerData = {
+        title: `عرض خاص على ${product.name}`,
+        discountType: DiscountType.PERCENT,
+        discountValue: 15,
+        startsAt: now,
+        endsAt: nextWeek,
+        isActive: true,
+      };
+      const existingOffer = await prisma.offer.findFirst({
+        where: { storeId: store.id, productId: product.id },
       });
+      if (existingOffer) {
+        await prisma.offer.update({
+          where: { id: existingOffer.id },
+          data: offerData,
+        });
+      } else {
+        await prisma.offer.create({
+          data: {
+            storeId: store.id,
+            productId: product.id,
+            ...offerData,
+          },
+        });
+      }
     }
   }
   console.log('✅ Offers created');
