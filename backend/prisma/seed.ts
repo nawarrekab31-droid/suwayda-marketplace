@@ -90,21 +90,26 @@ async function main() {
 
   // 3. Create Demo Stores (3 stores with Arabic placeholder names)
   const storeOwners = [
-    { phone: '+963991111111', email: 'store1@demo.local', name: 'صاحب المتجر الأول', storeName: 'متجر الهدايا الشرقية', description: 'متجر متخصص بالهدايا والتحف الشرقية الأصيلة', address: 'السوق القديم، السويداء', phone: '+963161234567' },
-    { phone: '+963992222222', email: 'store2@demo.local', name: 'صاحب المتجر الثاني', storeName: 'سوق الإلكترونيات الحديث', description: 'أحدث الأجهزة الإلكترونية بأسعار منافسة', address: 'شارع الجلاء، السويداء', phone: '+963167654321' },
-    { phone: '+963993333333', email: 'store3@demo.local', name: 'صاحب المتجر الثالث', storeName: 'أزياء السويدية', description: 'ملابس عصرية ومحلية للرجال والنساء والأطفال', address: 'سوق السويداء المركزي', phone: '+963165555555' },
+    { userPhone: '+963991111111', storePhone: '+963161234567', email: 'store1@demo.local', name: 'صاحب المتجر الأول', storeName: 'متجر الهدايا الشرقية', description: 'متجر متخصص بالهدايا والتحف الشرقية الأصيلة', address: 'السوق القديم، السويداء' },
+    { userPhone: '+963992222222', storePhone: '+963167654321', email: 'store2@demo.local', name: 'صاحب المتجر الثاني', storeName: 'سوق الإلكترونيات الحديث', description: 'أحدث الأجهزة الإلكترونية بأسعار منافسة', address: 'شارع الجلاء، السويداء' },
+    { userPhone: '+963993333333', storePhone: '+963165555555', email: 'store3@demo.local', name: 'صاحب المتجر الثالث', storeName: 'أزياء السويدية', description: 'ملابس عصرية ومحلية للرجال والنساء والأطفال', address: 'سوق السويداء المركزي' },
   ];
+
+  if (process.env.NODE_ENV === 'production') {
+    console.log('Production seed completed; demo accounts and data were skipped.');
+    return;
+  }
 
   const createdStores: Array<{ id: string; ownerId: string }> = [];
 
   for (const owner of storeOwners) {
     const ownerPasswordHash = await argon2.hash('StorePass123!');
     const merchant = await prisma.user.upsert({
-      where: { phone: owner.phone },
+      where: { phone: owner.userPhone },
       update: {},
       create: {
         email: owner.email,
-        phone: owner.phone,
+        phone: owner.userPhone,
         passwordHash: ownerPasswordHash,
         name: owner.name,
         role: Role.MERCHANT,
@@ -120,7 +125,7 @@ async function main() {
         name: owner.storeName,
         description: owner.description,
         address: owner.address,
-        phone: owner.phone_store,
+        phone: owner.storePhone,
         workingHours: {
           open: '09:00',
           close: '21:00',
@@ -223,12 +228,6 @@ async function main() {
   console.log('✅ Driver created: أحمد السائق');
 
   console.log('\n🎉 Database seed completed successfully!');
-  console.log('\n--- Test Credentials ---');
-  console.log(`Admin: ${process.env.ADMIN_PHONE} / ${process.env.ADMIN_PASSWORD}`);
-  console.log('Store 1: +963991111111 / StorePass123!');
-  console.log('Store 2: +963992222222 / StorePass123!');
-  console.log('Store 3: +963993333333 / StorePass123!');
-  console.log('Driver: +963994444444 / DriverPass123!');
 }
 
 main()
