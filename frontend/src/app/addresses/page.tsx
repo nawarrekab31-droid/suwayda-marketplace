@@ -2,15 +2,7 @@
 
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/lib/api';
-
-interface Address {
-  id: string;
-  label: string;
-  area: string;
-  street: string;
-  notes?: string;
-}
+import { api, type Address } from '@/lib/api';
 
 export default function AddressesPage() {
   const [isClient, setIsClient] = useState(false);
@@ -41,7 +33,7 @@ export default function AddressesPage() {
         <p>جاري التحميل...</p>
       ) : (
         <div className="space-y-4">
-          {addresses?.map((addr: Address) => (
+          {addresses?.map((addr) => (
             <div key={addr.id} className="card p-4">
               <div className="flex justify-between items-center">
                 <div>

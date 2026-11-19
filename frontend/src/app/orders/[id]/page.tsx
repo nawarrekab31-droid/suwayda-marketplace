@@ -27,7 +27,8 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
   });
 
   const updateStatus = useMutation({
-    mutationFn: (status: string, note?: string) => api.updateOrderStatus(params.id, status, note),
+    mutationFn: (data: { status: string; note: string }) =>
+      api.updateOrderStatus(params.id, data.status, data.note),
   });
 
   if (!isClient) return <div className="container-page">جاري التحميل...</div>;
@@ -64,7 +65,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
         <div className="card p-6">
           <h3 className="font-bold mb-4">العناصر</h3>
           <div className="divide-y">
-            {order.items?.map((item: any) => (
+            {order.items?.map((item) => (
               <div key={item.id} className="flex justify-between py-2">
                 <div>
                   <p className="text-sm font-medium">{item.nameSnapshot}</p>
@@ -100,7 +101,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
       <div className="flex flex-wrap gap-3 mt-6">
         {canAccept && (
           <button
-            onClick={() => updateStatus.mutate('ACCEPTED_BY_MERCHANT', 'تم قبول الطلب')}
+            onClick={() => updateStatus.mutate({ status: 'ACCEPTED_BY_MERCHANT', note: 'تم قبول الطلب' })}
             className="btn btn-primary"
           >
             قبول الطلب
@@ -108,7 +109,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
         )}
         {canPrepare && (
           <button
-            onClick={() => updateStatus.mutate('PREPARING', 'يتم تجهيز الطلب')}
+            onClick={() => updateStatus.mutate({ status: 'PREPARING', note: 'يتم تجهيز الطلب' })}
             className="btn btn-primary"
           >
             بدء التجهيز
@@ -116,7 +117,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
         )}
         {canReady && (
           <button
-            onClick={() => updateStatus.mutate('READY_FOR_PICKUP', 'الطلب جاهز للاستلام')}
+            onClick={() => updateStatus.mutate({ status: 'READY_FOR_PICKUP', note: 'الطلب جاهز للاستلام' })}
             className="btn btn-primary"
           >
             جاهز للاستلام
@@ -124,7 +125,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
         )}
         {canOnTheWay && (
           <button
-            onClick={() => updateStatus.mutate('ON_THE_WAY', 'في طريق التوصيل')}
+            onClick={() => updateStatus.mutate({ status: 'ON_THE_WAY', note: 'في طريق التوصيل' })}
             className="btn btn-primary"
           >
             في طريق التوصيل
@@ -132,7 +133,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
         )}
         {canDeliver && (
           <button
-            onClick={() => updateStatus.mutate('DELIVERED', 'تم التوصيل')}
+            onClick={() => updateStatus.mutate({ status: 'DELIVERED', note: 'تم التوصيل' })}
             className="btn btn-primary"
           >
             توصيل الطلب

@@ -40,7 +40,7 @@ export default function MerchantOrdersPage() {
       <h1 className="text-2xl font-bold mb-6">طلبات المتجر</h1>
 
       <div className="space-y-4">
-        {orders.map((order: any) => (
+        {orders.map((order) => (
           <div key={order.id} className="card">
             <div onClick={() => setShowDetails(showDetails === order.id ? null : order.id)} className="p-4 flex justify-between items-center cursor-pointer">
               <div>

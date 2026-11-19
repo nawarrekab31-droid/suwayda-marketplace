@@ -16,7 +16,10 @@ export const getOffers = async (req: Request, res: Response, next: NextFunction)
     const [offers, total] = await Promise.all([
       prisma.offer.findMany({
         where,
-        include: { store: { select: { name: true } }, product: { select: { name: true } } },
+        include: {
+          store: { select: { name: true } },
+          product: { include: { images: true } },
+        },
         skip: (Number(page) - 1) * Number(limit),
         take: Number(limit),
         orderBy: { createdAt: 'desc' },

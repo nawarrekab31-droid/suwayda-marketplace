@@ -3,7 +3,7 @@ import React from 'react';
 interface OrderStatusHistory {
   status: string;
   changedBy: string;
-  note: string;
+  note: string | null;
   createdAt: string;
 }
 
@@ -47,9 +47,9 @@ export const OrderTimeline = ({ statusHistory, currentStatus }: OrderTimelinePro
         </div>
 
         <div className="relative">
-          <div className="absolute top-4 left-0 right-0 h-2 bg-gray-200"></div>
+          <div className="absolute top-4 start-0 end-0 h-2 bg-gray-200"></div>
           <div
-            className="absolute top-4 left-0 h-2 bg-primary-600 transition-all duration-300"
+            className="absolute top-4 start-0 h-2 bg-primary-600 transition-all duration-300"
             style={{ width: `${(getCurrentIndex() + 1) / (STATUS_ORDER.length - 1) * 100}%` }}
           ></div>
         </div>

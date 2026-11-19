@@ -36,7 +36,7 @@ export default function AdminOrdersPage() {
             </tr>
           </thead>
           <tbody>
-            {(orders || []).map((order: any) => (
+            {(orders || []).map((order) => (
               <tr key={order.id} className="border-b hover:bg-gray-50">
                 <td className="p-3">#{order.id.slice(0, 8)}...</td>
                 <td className="p-3">{order.customer?.name || 'غير معروف'}</td>

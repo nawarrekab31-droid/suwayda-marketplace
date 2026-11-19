@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ProductCard } from '@/components/ProductCard';
 import { api } from '@/lib/api';
 
-export default function ProductsPage() {
+function ProductsPageContent() {
   const [isClient, setIsClient] = useState(false);
   React.useEffect(() => { setIsClient(true); }, []);
 
@@ -60,7 +60,7 @@ export default function ProductsPage() {
               >
                 جميع التصنيفات
               </button>
-              {categories?.map((cat: any) => (
+              {categories?.map((cat) => (
                 <button
                   key={cat.id}
                   onClick={() => setFilter('category', cat.id)}
@@ -98,7 +98,7 @@ export default function ProductsPage() {
             <p className="text-muted-foreground">لا توجد منتجات مطابقة.</p>
           ) : (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-              {products?.map((product: any) => (
+              {products?.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
@@ -106,5 +106,13 @@ export default function ProductsPage() {
         </main>
       </div>
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={<div className="container-page">جاري التحميل...</div>}>
+      <ProductsPageContent />
+    </Suspense>
   );
 }

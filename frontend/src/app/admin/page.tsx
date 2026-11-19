@@ -1,6 +1,3 @@
-import React from 'react';
-import { Container, Card, Table, TableHeader, TableBody, TableRow, TableCell, TableHead, Badge, Loader2, X } from 'lucide-react';
-
 export default function AdminPage() {
   return (
     <div className="container-page">
