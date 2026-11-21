@@ -60,7 +60,6 @@ export const ReviewModal = ({ orderId, storeName, isOpen, onClose, onSuccess }: 
           placeholder="اكتب تعليقك (اختياري)..."
           className="input"
           rows={3}
-          placeholder="اكتب تعليقك..."
         />
 
         <div className="flex gap-3 mt-4">

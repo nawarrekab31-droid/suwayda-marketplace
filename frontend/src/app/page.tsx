@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { SearchBar } from '@/components/SearchBar';
 import { ProductCard } from '@/components/ProductCard';
@@ -38,7 +38,9 @@ export default function HomePage() {
       <h1 className="mb-6 text-2xl font-bold">مرحباً بكم في سوق السويداء</h1>
       <p className="mb-8 text-muted-foreground">منصة ربط المتاجر المحلية بالمستهلكين</p>
 
-      <SearchBar />
+      <Suspense fallback={<div className="h-11" />}>
+        <SearchBar />
+      </Suspense>
 
       {offers && <OfferBanner offers={offers} />}
 

@@ -1,5 +1,15 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
+export interface Address {
+  id: string;
+  label: string;
+  area: string;
+  street: string;
+  notes?: string;
+  lat?: number;
+  lng?: number;
+}
+
 function getAuthHeaders(): HeadersInit {
   const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
   return token ? { Authorization: `Bearer ${token}` } : {};
@@ -30,9 +40,10 @@ export const api = {
     }).then(handleResponse),
 
   // Categories
-  getCategories: (params?: { parentId?: string }) => {
+  getCategories: (params?: { parentId?: string }): Promise<any[]> => {
     const qs = new URLSearchParams(params as any).toString();
-    return fetch(`${API_BASE}/categories?${qs}`).then(handleResponse);
+    return fetch(`${API_BASE}/categories?${qs}`)
+      .then((res) => handleResponse<any[]>(res));
   },
 
   getCategoryById: (id: string) =>
@@ -48,23 +59,27 @@ export const api = {
     minPrice?: number;
     maxPrice?: number;
     isAvailable?: boolean;
-  }) => {
+  }): Promise<any[]> => {
     const qs = new URLSearchParams(params as any).toString();
-    return fetch(`${API_BASE}/products?${qs}`).then(handleResponse);
+    return fetch(`${API_BASE}/products?${qs}`)
+      .then((res) => handleResponse<any[]>(res));
   },
 
-  getProductById: (id: string) =>
-    fetch(`${API_BASE}/products/${id}`).then(handleResponse),
+  getProductById: (id: string): Promise<any> =>
+    fetch(`${API_BASE}/products/${id}`)
+      .then((res) => handleResponse<any>(res)),
 
   // Offers
-  getOffers: (params?: { page?: number; limit?: number; storeId?: string; productId?: string; isActive?: boolean }) => {
+  getOffers: (params?: { page?: number; limit?: number; storeId?: string; productId?: string; isActive?: boolean }): Promise<any[]> => {
     const qs = new URLSearchParams(params as any).toString();
-    return fetch(`${API_BASE}/offers?${qs}`).then(handleResponse);
+    return fetch(`${API_BASE}/offers?${qs}`)
+      .then((res) => handleResponse<any[]>(res));
   },
 
   // Cart
-  getCart: () =>
-    fetch(`${API_BASE}/cart`, { headers: getAuthHeaders() }).then(handleResponse),
+  getCart: (): Promise<any> =>
+    fetch(`${API_BASE}/cart`, { headers: getAuthHeaders() })
+      .then((res) => handleResponse<any>(res)),
 
   addToCart: (productId: string, quantity?: number) =>
     fetch(`${API_BASE}/cart/add`, {
@@ -105,11 +120,13 @@ export const api = {
       body: JSON.stringify(data),
     }).then(handleResponse),
 
-  getOrders: () =>
-    fetch(`${API_BASE}/orders`, { headers: getAuthHeaders() }).then(handleResponse),
+  getOrders: (): Promise<any[]> =>
+    fetch(`${API_BASE}/orders`, { headers: getAuthHeaders() })
+      .then((res) => handleResponse<any[]>(res)),
 
-  getOrderById: (id: string) =>
-    fetch(`${API_BASE}/orders/${id}`, { headers: getAuthHeaders() }).then(handleResponse),
+  getOrderById: (id: string): Promise<any> =>
+    fetch(`${API_BASE}/orders/${id}`, { headers: getAuthHeaders() })
+      .then((res) => handleResponse<any>(res)),
 
   updateOrderStatus: (id: string, status: string, note?: string) =>
     fetch(`${API_BASE}/orders/${id}/status`, {
@@ -119,8 +136,9 @@ export const api = {
     }).then(handleResponse),
 
   // Deliveries
-  getMyDeliveries: () =>
-    fetch(`${API_BASE}/deliveries`, { headers: getAuthHeaders() }).then(handleResponse),
+  getMyDeliveries: (): Promise<any[]> =>
+    fetch(`${API_BASE}/deliveries/my`, { headers: getAuthHeaders() })
+      .then((res) => handleResponse<any[]>(res)),
 
   getDeliveryById: (id: string) =>
     fetch(`${API_BASE}/deliveries/${id}`, { headers: getAuthHeaders() }).then(handleResponse),
@@ -133,8 +151,9 @@ export const api = {
     }).then(handleResponse),
 
   // Notifications
-  getNotifications: () =>
-    fetch(`${API_BASE}/notifications`, { headers: getAuthHeaders() }).then(handleResponse),
+  getNotifications: (): Promise<any[]> =>
+    fetch(`${API_BASE}/notifications`, { headers: getAuthHeaders() })
+      .then((res) => handleResponse<any[]>(res)),
 
   markNotificationRead: (id: string) =>
     fetch(`${API_BASE}/notifications/${id}/read`, {
@@ -149,8 +168,9 @@ export const api = {
     }).then(handleResponse),
 
   // Addresses
-  getAddresses: () =>
-    fetch(`${API_BASE}/addresses`, { headers: getAuthHeaders() }).then(handleResponse),
+  getAddresses: (): Promise<Address[]> =>
+    fetch(`${API_BASE}/addresses`, { headers: getAuthHeaders() })
+      .then((res) => handleResponse<Address[]>(res)),
 
   createAddress: (data: { label: string; area: string; street: string; notes?: string; lat?: number; lng?: number }) =>
     fetch(`${API_BASE}/addresses`, {

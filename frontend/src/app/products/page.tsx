@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ProductCard } from '@/components/ProductCard';
 import { api } from '@/lib/api';
 
-export default function ProductsPage() {
+function ProductsPageContent() {
   const [isClient, setIsClient] = useState(false);
   React.useEffect(() => { setIsClient(true); }, []);
 
@@ -106,5 +106,13 @@ export default function ProductsPage() {
         </main>
       </div>
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={<div className="container-page">جاري التحميل...</div>}>
+      <ProductsPageContent />
+    </Suspense>
   );
 }

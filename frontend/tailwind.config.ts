@@ -12,6 +12,7 @@ const config: Config = {
         arabic: ['var(--font-arabic)', 'system-ui', 'sans-serif'],
       },
       colors: {
+        'muted-foreground': '#6b7280',
         primary: {
           50: '#f0fdf4',
           100: '#dcfce7',
