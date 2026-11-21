@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { api, formatPrice } from '@/lib/api';
 
 interface Address {
@@ -193,7 +193,7 @@ export default function CheckoutPage() {
             <h3 className="font-bold mb-4">ملخص الطلب</h3>
 
             <div className="border divide-y mb-4">
-              {cart.items?.map((item: any) => (
+              {cart.items?.map((item) => (
                 <div key={item.id} className="flex items-center gap-3 py-2">
                   <img src={item.product.images?.[0]?.url || '/placeholder.png'} alt="" className="w-12 h-12 object-cover rounded" />
                   <div className="flex-1">

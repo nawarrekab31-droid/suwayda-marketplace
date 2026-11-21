@@ -10,6 +10,123 @@ export interface Address {
   lng?: number;
 }
 
+export interface ProductImage {
+  id: string;
+  url: string;
+  sortOrder: number;
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  isAvailable: boolean;
+  images: ProductImage[];
+  store: { name: string };
+  category: { name: string } | null;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  icon: string | null;
+  parentId: string | null;
+  children: Category[];
+}
+
+export interface Offer {
+  id: string;
+  title: string;
+  discountType: 'PERCENT' | 'FIXED';
+  discountValue: number;
+  startsAt: string;
+  endsAt: string;
+  store: { name: string };
+  product: Pick<Product, 'id' | 'name' | 'price' | 'images'> | null;
+}
+
+export type OrderStatus =
+  | 'NEW'
+  | 'ACCEPTED_BY_MERCHANT'
+  | 'PREPARING'
+  | 'READY_FOR_PICKUP'
+  | 'ASSIGNED_TO_DRIVER'
+  | 'ON_THE_WAY'
+  | 'DELIVERED'
+  | 'REJECTED_BY_MERCHANT'
+  | 'CANCELLED_BY_CUSTOMER'
+  | 'DELIVERY_FAILED';
+
+export interface OrderStatusHistory {
+  id: string;
+  status: OrderStatus;
+  changedBy: string;
+  note: string | null;
+  createdAt: string;
+}
+
+export interface OrderItem {
+  id: string;
+  nameSnapshot: string;
+  unitPriceSnapshot: number;
+  quantity: number;
+}
+
+export interface Order {
+  id: string;
+  status: OrderStatus;
+  subtotal: number;
+  deliveryFee: number;
+  total: number;
+  paymentMethod: string;
+  notes: string | null;
+  createdAt: string;
+  addressSnapshot: {
+    area: string;
+    street: string;
+    notes: string | null;
+  };
+  store: { name: string } | null;
+  customer: { name: string; phone: string } | null;
+  items: OrderItem[];
+  statusHistory: OrderStatusHistory[];
+}
+
+export interface CartItem {
+  id: string;
+  quantity: number;
+  product: {
+    id: string;
+    name: string;
+    price: number;
+    images: { url: string }[];
+    store: { name: string } | null;
+  };
+}
+
+export interface Cart {
+  items: CartItem[];
+  subtotal: number;
+}
+
+export interface Notification {
+  id: string;
+  type: string;
+  title: string;
+  body: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
+export interface Delivery {
+  id: string;
+  status: 'ASSIGNED' | 'PICKED_UP' | 'DELIVERED' | 'FAILED';
+  pickedAt: string | null;
+  deliveredAt: string | null;
+  order: Pick<Order, 'id' | 'status' | 'total' | 'paymentMethod' | 'addressSnapshot' | 'store' | 'customer'>;
+}
+
 function getAuthHeaders(): HeadersInit {
   const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
   return token ? { Authorization: `Bearer ${token}` } : {};
@@ -40,14 +157,15 @@ export const api = {
     }).then(handleResponse),
 
   // Categories
-  getCategories: (params?: { parentId?: string }): Promise<any[]> => {
+  getCategories: (params?: { parentId?: string }) => {
     const qs = new URLSearchParams(params as any).toString();
     return fetch(`${API_BASE}/categories?${qs}`)
-      .then((res) => handleResponse<any[]>(res));
+      .then((res) => handleResponse<Category[]>(res));
   },
 
   getCategoryById: (id: string) =>
-    fetch(`${API_BASE}/categories/${id}`).then(handleResponse),
+    fetch(`${API_BASE}/categories/${id}`)
+      .then((res) => handleResponse<Category>(res)),
 
   // Products
   getProducts: (params?: {
@@ -59,27 +177,27 @@ export const api = {
     minPrice?: number;
     maxPrice?: number;
     isAvailable?: boolean;
-  }): Promise<any[]> => {
+  }) => {
     const qs = new URLSearchParams(params as any).toString();
     return fetch(`${API_BASE}/products?${qs}`)
-      .then((res) => handleResponse<any[]>(res));
+      .then((res) => handleResponse<Product[]>(res));
   },
 
-  getProductById: (id: string): Promise<any> =>
+  getProductById: (id: string) =>
     fetch(`${API_BASE}/products/${id}`)
-      .then((res) => handleResponse<any>(res)),
+      .then((res) => handleResponse<Product>(res)),
 
   // Offers
-  getOffers: (params?: { page?: number; limit?: number; storeId?: string; productId?: string; isActive?: boolean }): Promise<any[]> => {
+  getOffers: (params?: { page?: number; limit?: number; storeId?: string; productId?: string; isActive?: boolean }) => {
     const qs = new URLSearchParams(params as any).toString();
     return fetch(`${API_BASE}/offers?${qs}`)
-      .then((res) => handleResponse<any[]>(res));
+      .then((res) => handleResponse<Offer[]>(res));
   },
 
   // Cart
-  getCart: (): Promise<any> =>
+  getCart: (): Promise<Cart> =>
     fetch(`${API_BASE}/cart`, { headers: getAuthHeaders() })
-      .then((res) => handleResponse<any>(res)),
+      .then((res) => handleResponse<Cart>(res)),
 
   addToCart: (productId: string, quantity?: number) =>
     fetch(`${API_BASE}/cart/add`, {
@@ -120,13 +238,13 @@ export const api = {
       body: JSON.stringify(data),
     }).then(handleResponse),
 
-  getOrders: (): Promise<any[]> =>
+  getOrders: (): Promise<Order[]> =>
     fetch(`${API_BASE}/orders`, { headers: getAuthHeaders() })
-      .then((res) => handleResponse<any[]>(res)),
+      .then((res) => handleResponse<Order[]>(res)),
 
-  getOrderById: (id: string): Promise<any> =>
+  getOrderById: (id: string): Promise<Order> =>
     fetch(`${API_BASE}/orders/${id}`, { headers: getAuthHeaders() })
-      .then((res) => handleResponse<any>(res)),
+      .then((res) => handleResponse<Order>(res)),
 
   updateOrderStatus: (id: string, status: string, note?: string) =>
     fetch(`${API_BASE}/orders/${id}/status`, {
@@ -136,9 +254,9 @@ export const api = {
     }).then(handleResponse),
 
   // Deliveries
-  getMyDeliveries: (): Promise<any[]> =>
+  getMyDeliveries: (): Promise<Delivery[]> =>
     fetch(`${API_BASE}/deliveries/my`, { headers: getAuthHeaders() })
-      .then((res) => handleResponse<any[]>(res)),
+      .then((res) => handleResponse<Delivery[]>(res)),
 
   getDeliveryById: (id: string) =>
     fetch(`${API_BASE}/deliveries/${id}`, { headers: getAuthHeaders() }).then(handleResponse),
@@ -151,9 +269,9 @@ export const api = {
     }).then(handleResponse),
 
   // Notifications
-  getNotifications: (): Promise<any[]> =>
+  getNotifications: (): Promise<Notification[]> =>
     fetch(`${API_BASE}/notifications`, { headers: getAuthHeaders() })
-      .then((res) => handleResponse<any[]>(res)),
+      .then((res) => handleResponse<Notification[]>(res)),
 
   markNotificationRead: (id: string) =>
     fetch(`${API_BASE}/notifications/${id}/read`, {

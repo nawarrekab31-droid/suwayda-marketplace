@@ -28,7 +28,7 @@ export default function NotificationsPage() {
   if (!isClient) return <div className="container-page">جاري التحميل...</div>;
   if (isLoading) return <div className="container-page">جاري تحميل الإشعارات...</div>;
 
-  const unread = (notifications || []).filter((n: any) => !n.isRead);
+  const unread = (notifications || []).filter((n) => !n.isRead);
 
   return (
     <div className="container-page">
@@ -57,7 +57,7 @@ export default function NotificationsPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {notifications.map((n: any) => (
+          {notifications.map((n) => (
             <div
               key={n.id}
               className={`card p-4 ${!n.isRead ? 'border-l-4 border-primary-500 bg-blue-50' : ''}`}

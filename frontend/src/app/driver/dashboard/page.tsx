@@ -40,7 +40,7 @@ export default function DriverDashboardPage() {
       <h1 className="text-2xl font-bold mb-6">لوحة السائق</h1>
 
       <div className="space-y-4">
-        {deliveries.map((delivery: any) => {
+        {deliveries.map((delivery) => {
           const order = delivery.order;
           if (!order) return null;
 

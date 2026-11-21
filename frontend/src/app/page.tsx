@@ -38,7 +38,7 @@ export default function HomePage() {
       <h1 className="mb-6 text-2xl font-bold">مرحباً بكم في سوق السويداء</h1>
       <p className="mb-8 text-muted-foreground">منصة ربط المتاجر المحلية بالمستهلكين</p>
 
-      <Suspense fallback={<div className="h-11" />}>
+      <Suspense fallback={<div className="h-10" />}>
         <SearchBar />
       </Suspense>
 
@@ -60,7 +60,7 @@ export default function HomePage() {
             </a>
           </div>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {products.map((product: any) => (
+            {products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>

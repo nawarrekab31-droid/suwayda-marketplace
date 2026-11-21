@@ -27,8 +27,8 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
   });
 
   const updateStatus = useMutation({
-    mutationFn: ({ status, note }: { status: string; note?: string }) =>
-      api.updateOrderStatus(params.id, status, note),
+    mutationFn: (data: { status: string; note: string }) =>
+      api.updateOrderStatus(params.id, data.status, data.note),
   });
 
   if (!isClient) return <div className="container-page">جاري التحميل...</div>;
@@ -65,7 +65,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
         <div className="card p-6">
           <h3 className="font-bold mb-4">العناصر</h3>
           <div className="divide-y">
-            {order.items?.map((item: any) => (
+            {order.items?.map((item) => (
               <div key={item.id} className="flex justify-between py-2">
                 <div>
                   <p className="text-sm font-medium">{item.nameSnapshot}</p>

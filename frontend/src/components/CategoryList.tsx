@@ -5,7 +5,7 @@ import { formatPrice } from '@/lib/api';
 interface Category {
   id: string;
   name: string;
-  icon?: string;
+  icon?: string | null;
   children?: Category[];
 }
 

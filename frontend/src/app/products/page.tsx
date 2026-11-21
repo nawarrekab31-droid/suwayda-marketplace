@@ -60,7 +60,7 @@ function ProductsPageContent() {
               >
                 جميع التصنيفات
               </button>
-              {categories?.map((cat: any) => (
+              {categories?.map((cat) => (
                 <button
                   key={cat.id}
                   onClick={() => setFilter('category', cat.id)}
@@ -98,7 +98,7 @@ function ProductsPageContent() {
             <p className="text-muted-foreground">لا توجد منتجات مطابقة.</p>
           ) : (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-              {products?.map((product: any) => (
+              {products?.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
